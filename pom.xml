@@ -8,10 +8,10 @@
 		<version>2.6.4</version>
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
-	<groupId>com.deepbluec.ptsp</groupId>
+	<groupId>com.zantabri</groupId>
 	<artifactId>auth-service</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
-	<name>PTSP Auth Service</name>
+	<name>Auth Service</name>
 	<description>Authentication, Authorization and Account Details services</description>
 	<properties>
 		<java.version>11</java.version>
