@@ -43,6 +43,7 @@ public class AccountOnBoardingServiceImpl implements AccountOnBoardingService {
 
         AccountDetails accountDetails1 =  accountDetailsRepository.save(accountDetails);
         accountDetails.setActivated(false);
+
         //generate code
         String code = generateCode();
 

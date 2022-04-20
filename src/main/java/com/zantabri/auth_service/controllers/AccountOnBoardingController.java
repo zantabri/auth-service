@@ -4,6 +4,7 @@ import com.zantabri.auth_service.model.AccountDetails;
 import com.zantabri.auth_service.services.AccountOnBoardingService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
@@ -20,12 +21,12 @@ public class AccountOnBoardingController {
     }
 
     @ResponseStatus(HttpStatus.OK)
-    @PostMapping("/register")
+    @PostMapping(value = "/register", consumes = MediaType.APPLICATION_JSON_VALUE)
     public @ResponseBody void register(@RequestBody AccountDetails accountDetails) {
         this.accountOnBoardingService.register(accountDetails);
     }
 
-    @PostMapping("/activate")
+    @GetMapping("/activate")
     public String activate(@RequestParam("urn") String username, @RequestParam("avc") String activationCode) {
 
         var success = this.accountOnBoardingService.activate(username, activationCode);
