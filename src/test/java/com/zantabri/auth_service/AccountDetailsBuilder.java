@@ -11,7 +11,7 @@ public class AccountDetailsBuilder {
     private AccountDetailsBuilder() {}
 
     public static AccountDetails from(String username, String firstName, String lastname, List<UserRole> userRoles,
-                                      String email, boolean activated, String telephone, Organization organization) {
+                                      String email, boolean activated, String telephone, long organizationId) {
 
         AccountDetails accountDetails = new AccountDetails();
         accountDetails.setUsername(username);
@@ -20,7 +20,7 @@ public class AccountDetailsBuilder {
         accountDetails.setEmail(email);
         accountDetails.setFirstName(firstName);
         accountDetails.setLastName(lastname);
-        accountDetails.setOrganization(organization);
+        accountDetails.setOrganizationId(organizationId);
         accountDetails.setTelephone(telephone);
 
         return accountDetails;

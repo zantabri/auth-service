@@ -1,4 +1,4 @@
-package com.zantabri.auth_service;
+package com.zantabri.auth_service.controllers;
 
 import static org.junit.jupiter.api.Assertions.*;
 

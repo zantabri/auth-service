@@ -18,7 +18,6 @@ public class UserDetailsImpl implements UserDetails {
     private boolean credentialsNonExpired =  true;
     private boolean enabled;
     private List<UserRole> authorities;
-    private String organizationType;
 
     private UserDetailsImpl() {}
 
@@ -31,8 +30,6 @@ public class UserDetailsImpl implements UserDetails {
         this.userName = accountDetails.getUsername();
         this.enabled = accountDetails.isActivated();
         this.authorities = accountDetails.getAuthorities();
-        this.organizationId = accountDetails.getOrganization().getOrganizationId();
-        this.organizationType = accountDetails.getOrganization().getOrganizationType();
     }
 
     @Override
@@ -78,9 +75,6 @@ public class UserDetailsImpl implements UserDetails {
         return organizationId;
     }
 
-    public String getOrganizationType() {
-        return organizationType;
-    }
 
     @Override
     public String toString() {
@@ -91,7 +85,6 @@ public class UserDetailsImpl implements UserDetails {
                 ", accountNonLocked=" + accountNonLocked +
                 ", credentialsNonExpired=" + credentialsNonExpired +
                 ", enabled=" + enabled +
-                ", organizationType='" + organizationType + '\'' +
                 '}';
     }
 }

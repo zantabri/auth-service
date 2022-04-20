@@ -53,7 +53,7 @@ public class JWTAuthenticationServiceTest {
                 "john@email.com",
                 true,
                 "08064932359",
-                new PTSPOrganization());
+                1);
 
         accountDetails.setPassword("password");
 
@@ -90,7 +90,7 @@ public class JWTAuthenticationServiceTest {
                 "john@email.com",
                 true,
                 "08064932359",
-                new PTSPOrganization());
+                1);
 
         accountDetails.setPassword("password");
 

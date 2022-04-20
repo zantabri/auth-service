@@ -44,7 +44,7 @@ public class AccountDetails {
     @NotNull
     @JoinColumn(name = "organization_id", nullable = false)
     @ManyToOne(fetch = FetchType.EAGER)
-    private Organization organization;
+    private long organizationId;
 
     public AccountDetails() {
     }
@@ -113,11 +113,11 @@ public class AccountDetails {
         this.authorities = authorities;
     }
 
-    public Organization getOrganization() {
-        return organization;
+    public long getOrganizationId() {
+        return organizationId;
     }
 
-    public void setOrganization(Organization organization) {
-        this.organization = organization;
+    public void setOrganizationId(long organization) {
+        this.organizationId = organization;
     }
 }

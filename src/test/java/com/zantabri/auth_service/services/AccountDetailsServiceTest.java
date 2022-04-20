@@ -6,8 +6,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import com.zantabri.auth_service.errors.OldPasswordVerificationFailedException;
 import com.zantabri.auth_service.errors.ResourceNotFoundException;
 import com.zantabri.auth_service.model.AccountDetails;
-import com.zantabri.auth_service.model.Organization;
-import com.zantabri.auth_service.model.PTSPOrganization;
+
 import com.zantabri.auth_service.model.UserRole;
 import org.junit.jupiter.api.Test;
 
@@ -46,7 +45,7 @@ public class AccountDetailsServiceTest {
 
 
     private AccountDetails accountDetails(String username, String firstName, String lastname, List<UserRole> userRoles,
-                                          String email, boolean activated, String telephone, Organization organization) {
+                                          String email, boolean activated, String telephone, long organizationId) {
 
         AccountDetails accountDetails = new AccountDetails();
         accountDetails.setUsername(username);
@@ -55,7 +54,7 @@ public class AccountDetailsServiceTest {
         accountDetails.setEmail(email);
         accountDetails.setFirstName(firstName);
         accountDetails.setLastName(lastname);
-        accountDetails.setOrganization(organization);
+        accountDetails.setOrganizationId(organizationId);
         accountDetails.setTelephone(telephone);
 
         return accountDetails;
@@ -74,7 +73,7 @@ public class AccountDetailsServiceTest {
                 "john@email.com",
                 true,
                 "08064932359",
-                new PTSPOrganization());
+                1);
         given(accountDetailsRepository.findById(eq(username))).willReturn(Optional.of(mockAccountDetails));
 
         AccountDetails response = accountDetailsService.getAccountByUsername(username);
@@ -105,7 +104,7 @@ public class AccountDetailsServiceTest {
                 "john@email.com",
                 true,
                 "08064932359",
-                new PTSPOrganization());
+                1);
 
         accountDetailsService.createAccount(details);
         verify(accountDetailsRepository).save(details);
@@ -114,7 +113,7 @@ public class AccountDetailsServiceTest {
 
     @Test
     public void testCreateAccountWithMissingParameters() {
-        //TODO
+        //TODO implement validation logic
         fail("not yet implemented");
     }
 
@@ -130,7 +129,7 @@ public class AccountDetailsServiceTest {
                 "john@email.com",
                 true,
                 "08064932359",
-                new PTSPOrganization());
+                1);
 
 
         AccountDetails accountDetailsModification = accountDetails(
@@ -141,7 +140,7 @@ public class AccountDetailsServiceTest {
                 "jaeger@email.com",
                 true,
                 "08064932359",
-                new PTSPOrganization());
+                1);
 
 
         given(accountDetailsRepository.findById(eq(username))).willReturn(Optional.of(currentAccountDetails));
@@ -164,7 +163,7 @@ public class AccountDetailsServiceTest {
                 "jaeger@email.com",
                 true,
                 "08064932359",
-                new PTSPOrganization());
+                1);
 
         given(accountDetailsRepository.findById(eq(username))).willReturn(Optional.empty());
         assertThrows(ResourceNotFoundException.class, () -> accountDetailsService.updateAccount(username, accountDetailsModification));
@@ -193,7 +192,7 @@ public class AccountDetailsServiceTest {
                 "john@email.com",
                 true,
                 "08064932359",
-                new PTSPOrganization());
+                1);
 
         given(accountDetailsRepository.findById(eq(username))).willReturn(Optional.of(accountDetails));
         given(passwordEncoder.matches(eq(oldPassword), eq(accountDetails.getPassword()))).willReturn(true);
@@ -217,7 +216,7 @@ public class AccountDetailsServiceTest {
                 "john@email.com",
                 true,
                 "08064932359",
-                new PTSPOrganization());
+                1);
 
         given(accountDetailsRepository.findById(eq(username))).willReturn(Optional.empty());
         assertThrows(UsernameNotFoundException.class, () -> accountDetailsService.changePassword(username, oldPassword, newPassword));
@@ -238,7 +237,7 @@ public class AccountDetailsServiceTest {
                 "john@email.com",
                 true,
                 "08064932359",
-                new PTSPOrganization());
+                1);
 
         given(accountDetailsRepository.findById(eq(username))).willReturn(Optional.of(accountDetails));
         given(passwordEncoder.matches(eq(oldPassword), eq(accountDetails.getPassword()))).willReturn(false);

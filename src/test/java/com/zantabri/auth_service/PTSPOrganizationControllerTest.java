@@ -6,13 +6,18 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import com.zantabri.auth_service.controllers.PTSPOrganizationController;
 import com.zantabri.auth_service.model.PTSPOrganization;
+import com.zantabri.auth_service.model.UserRole;
 import com.zantabri.auth_service.repositories.AccountDetailsRepository;
 import com.zantabri.auth_service.services.IPTSPOrganizationService;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.security.Keys;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.data.domain.Page;
@@ -25,14 +30,24 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 
 
+import javax.crypto.SecretKey;
 import java.io.UnsupportedEncodingException;
+import java.nio.charset.StandardCharsets;
+import java.sql.Date;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
+import java.util.Map;
 
 @WebMvcTest(PTSPOrganizationController.class)
 public class PTSPOrganizationControllerTest {
 
     private Logger logger = LoggerFactory.getLogger(PTSPOrganizationControllerTest.class);
+
+    @Value("${jwt.signing.key}")
+    private  String signingKey;
 
     @Autowired
     private MockMvc mockMvc;
@@ -45,6 +60,18 @@ public class PTSPOrganizationControllerTest {
 
     @Autowired
     private ObjectMapper objectMapper;
+
+
+    private static String jwt;
+
+    @BeforeEach
+    private void initJws() {
+        SecretKey key = Keys.hmacShaKeyFor(signingKey.getBytes(StandardCharsets.UTF_8));
+        jwt = Jwts.builder().setClaims(Map.of("username", "username","roles", List.of(new UserRole(1,     "ADMIN"))))
+                .signWith(key)
+                .setExpiration(Date.from(LocalDateTime.now().plus(1, ChronoUnit.HOURS).atZone(ZoneId.systemDefault()).toInstant()))
+                .compact();
+    }
 
 
     @WithMockUser(roles = "SUPER_ADMIN")
@@ -62,7 +89,7 @@ public class PTSPOrganizationControllerTest {
         organization.setDateCreated(LocalDate.now());
 
         given(this.iptspOrganizationService.getPTSPOrganization(1L)).willReturn(organization);
-        this.mockMvc.perform(get("/ptsp/1").accept(MediaType.APPLICATION_JSON))
+        this.mockMvc.perform(get("/ptsp/1").header("Authorization", jwt).accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk()).andDo(this::logResult);
 
     }

@@ -1,9 +1,14 @@
 package com.zantabri.auth_service.security;
 
+import aj.org.objectweb.asm.TypeReference;
+import com.fasterxml.jackson.databind.JavaType;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.zantabri.auth_service.errors.UnAuthorizedAccessException;
+import com.zantabri.auth_service.model.UserRole;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.GrantedAuthority;
@@ -20,7 +25,9 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Component
 public class JWTAuthenticationFilter extends OncePerRequestFilter {
@@ -48,15 +55,8 @@ public class JWTAuthenticationFilter extends OncePerRequestFilter {
 
         String username = String.valueOf(claims.get("username"));
         String roles = String.valueOf(claims.get("roles"));
-        List<GrantedAuthority> authorities = new ArrayList<>();
-
-        String[] rolesArr = roles.split(",");
-        for (int i = 0; i < rolesArr.length; i++) {
-
-            if (rolesArr[i] != null && !rolesArr[i].isEmpty())
-                authorities.add(new SimpleGrantedAuthority(rolesArr[i]));
-
-        }
+        String[] arr = roles.split(",");
+        List<SimpleGrantedAuthority> authorities = Arrays.stream(arr).map(s -> new SimpleGrantedAuthority(s)).collect(Collectors.toList());
         var auth = new UsernamePasswordAuthenticationToken(username, null, authorities);
         SecurityContextHolder.getContext().setAuthentication(auth);
 

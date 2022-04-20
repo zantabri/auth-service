@@ -2,8 +2,9 @@ package com.zantabri.auth_service.services;
 
 import com.zantabri.auth_service.model.AccountDetails;
 import org.springframework.data.domain.Page;
+import org.springframework.security.core.userdetails.UserDetailsService;
 
-public interface AccountDetailsService {
+public interface AccountDetailsService extends UserDetailsService {
 
     AccountDetails getAccountByUsername(String username);
 

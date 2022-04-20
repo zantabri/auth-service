@@ -57,7 +57,7 @@ public class AccountOnBoardingServiceTest {
                 "john@email.com",
                 false,
                 "08064932359",
-                new PTSPOrganization());
+                1);
 
         accountOnBoardingService.register(accountDetails);
 
@@ -79,7 +79,7 @@ public class AccountOnBoardingServiceTest {
                 "john@email.com",
                 false,
                 "08064932359",
-                new PTSPOrganization());
+                1);
 
         given(activationCodeRepository.findByUsernameAndCodeAndExpiresLessThan(eq(username), eq(code), any(LocalDateTime.class))).willReturn(Optional.of(new ActivationCode(username, code, LocalDateTime.now().plus(2, ChronoUnit.HOURS))));
         given(accountDetailsRepository.findById(eq(username))).willReturn(Optional.of(accountDetails));

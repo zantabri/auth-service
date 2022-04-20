@@ -9,6 +9,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -70,6 +71,7 @@ public class AccountDetailsServiceImpl implements AccountDetailsService {
 
     @Override
     public void changePassword(String username, String oldPassword, String newPassword) {
+
         Optional<AccountDetails> accountDetailsOpt = accountDetailsRepository.findById(username);
 
         if (accountDetailsOpt.isEmpty()) {
@@ -83,6 +85,7 @@ public class AccountDetailsServiceImpl implements AccountDetailsService {
 
         accountDetails.setPassword(passwordEncoder.encode(newPassword));
         accountDetailsRepository.save(accountDetails);
+
     }
 
     @Override
@@ -98,4 +101,8 @@ public class AccountDetailsServiceImpl implements AccountDetailsService {
 
     }
 
+    @Override
+    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+        return (UserDetails) this.getAccountByUsername(username);
+    }
 }

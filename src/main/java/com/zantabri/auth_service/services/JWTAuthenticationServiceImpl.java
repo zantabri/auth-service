@@ -72,7 +72,7 @@ public class JWTAuthenticationServiceImpl implements AuthenticationService {
     private String commaSeparatedListOfRoles(List<UserRole> roles) {
         return roles.stream()
                 .map(userRoles -> userRoles.getRole())
-                .reduce((s, s2) -> s.concat(",").concat(s2)).get();
+                .reduce((s, s2) -> s.concat(",").concat("ROLE_").concat(s2)).get();
     }
 
 }

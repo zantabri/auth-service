@@ -30,6 +30,8 @@ public abstract class Organization {
     @NotNull
     private String contactNumber;
 
+    public Organization() {}
+
     /**
      * the organization type
      *
