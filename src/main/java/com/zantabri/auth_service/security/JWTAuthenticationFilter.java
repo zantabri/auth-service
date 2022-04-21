@@ -66,6 +66,10 @@ public class JWTAuthenticationFilter extends OncePerRequestFilter {
 
     protected boolean shouldNotFilter(HttpServletRequest request) {
 
-        return request.getPathInfo().equals("/authenticate") || request.getPathInfo().equals("/register") || request.getPathInfo().equals("/activate") || request.getPathInfo().equals("/ping");
+        String path = request.getPathInfo();
+        if(path == null)
+            path = request.getServletPath();
+
+        return path.equals("/authenticate") || path.equals("/register") || path.equals("/activate") || path.equals("/ping");
     }
 }
