@@ -58,7 +58,7 @@ public class TestConfig {
 
          LocalContainerEntityManagerFactoryBean factoryBean = new LocalContainerEntityManagerFactoryBean();
          factoryBean.setDataSource(dataSource);
-         factoryBean.setPackagesToScan("com.deepbluec.ptsp.auth_service");
+         factoryBean.setPackagesToScan("com.zantabri.auth_service");
 
          JpaVendorAdapter vendorAdapter = new HibernateJpaVendorAdapter();
          factoryBean.setJpaVendorAdapter(vendorAdapter);
@@ -73,10 +73,6 @@ public class TestConfig {
         return new JpaTransactionManager(entityManagerFactory);
     }
 
-    @Bean
-    public PasswordEncoder passwordEncoder() {
-        return NoOpPasswordEncoder.getInstance();
-    }
 
 
 }
