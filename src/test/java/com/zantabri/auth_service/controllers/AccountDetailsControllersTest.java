@@ -8,7 +8,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.zantabri.auth_service.AccountDetailsBuilder;
 import com.zantabri.auth_service.errors.ResourceNotFoundException;
 import com.zantabri.auth_service.model.AccountDetails;
-import com.zantabri.auth_service.model.PTSPOrganization;
 import com.zantabri.auth_service.model.UserRole;
 import com.zantabri.auth_service.repositories.AccountDetailsRepository;
 import com.zantabri.auth_service.services.AccountDetailsService;

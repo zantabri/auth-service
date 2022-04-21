@@ -5,7 +5,6 @@ import static org.junit.jupiter.api.Assertions.*;
 
 import com.zantabri.auth_service.AccountDetailsBuilder;
 import com.zantabri.auth_service.model.AccountDetails;
-import com.zantabri.auth_service.model.PTSPOrganization;
 import com.zantabri.auth_service.model.UserRole;
 import com.zantabri.auth_service.repositories.AccountDetailsRepository;
 import com.zantabri.auth_service.security.AuthenticationCredentialsDTO;

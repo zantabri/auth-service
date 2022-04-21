@@ -1,10 +1,9 @@
-package com.zantabri.auth_service;
+package com.zantabri.auth_service.repositories;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 import com.zantabri.auth_service.model.AccountDetails;
 import com.zantabri.auth_service.security.UserDetailsImpl;
-import com.zantabri.auth_service.repositories.AccountDetailsRepository;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -26,6 +25,11 @@ public class AccountDetailsRepositoryTest {
 
     @Autowired
     private EntityManagerFactory entityManagerFactory;
+
+    @Test
+    public void check() {
+        assertNotNull(accountDetailsRepository);
+    }
 
     @Test
     public void testFindByID() {

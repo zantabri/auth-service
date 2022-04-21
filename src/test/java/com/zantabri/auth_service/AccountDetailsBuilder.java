@@ -1,7 +1,7 @@
 package com.zantabri.auth_service;
 
 import com.zantabri.auth_service.model.AccountDetails;
-import com.zantabri.auth_service.model.Organization;
+
 import com.zantabri.auth_service.model.UserRole;
 
 import java.util.List;

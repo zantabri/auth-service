@@ -42,8 +42,7 @@ public class AccountDetails {
     private List<UserRole> authorities;
 
     @NotNull
-    @JoinColumn(name = "organization_id", nullable = false)
-    @ManyToOne(fetch = FetchType.EAGER)
+    @Column(name = "organization_id", nullable = false)
     private long organizationId;
 
     public AccountDetails() {

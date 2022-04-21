@@ -63,6 +63,7 @@ public class AccountOnBoardingControllerTest {
                 .andExpect(status().isOk()).andDo(result -> logger.info("message {}", result.getResponse().getContentAsString()));
 
         verify(accountOnBoardingService).register(any(AccountDetails.class));
+
     }
 
     @Test
