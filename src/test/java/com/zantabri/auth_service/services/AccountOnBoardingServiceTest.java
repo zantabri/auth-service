@@ -82,7 +82,7 @@ public class AccountOnBoardingServiceTest {
                 "08064932359",
                 1);
 
-        given(activationCodeRepository.findByUsernameAndCodeAndExpiresLessThan(eq(username), eq(code), any(LocalDateTime.class))).willReturn(Optional.of(new ActivationCode(username, code, LocalDateTime.now().plus(2, ChronoUnit.HOURS))));
+        given(activationCodeRepository.findByUsernameAndCodeAndExpiresGreaterThan(eq(username), eq(code), any(LocalDateTime.class))).willReturn(Optional.of(new ActivationCode(username, code, LocalDateTime.now().plus(2, ChronoUnit.HOURS))));
         given(accountDetailsRepository.findById(eq(username))).willReturn(Optional.of(accountDetails));
 
         boolean success = accountOnBoardingService.activate(username, code);
@@ -99,7 +99,7 @@ public class AccountOnBoardingServiceTest {
         String username = "johnD";
         String code = "4523650";
 
-        given(activationCodeRepository.findByUsernameAndCodeAndExpiresLessThan(eq(username), eq(code), any(LocalDateTime.class))).willReturn(Optional.empty());
+        given(activationCodeRepository.findByUsernameAndCodeAndExpiresGreaterThan(eq(username), eq(code), any(LocalDateTime.class))).willReturn(Optional.empty());
         boolean success = accountOnBoardingService.activate(username, code);
         assertFalse(success);
     }
@@ -110,7 +110,7 @@ public class AccountOnBoardingServiceTest {
         String username = "johnD";
         String code = "4523650";
 
-        given(activationCodeRepository.findByUsernameAndCodeAndExpiresLessThan(eq(username), eq(code), any(LocalDateTime.class))).willReturn(Optional.of(new ActivationCode(username, code, LocalDateTime.now().plus(2, ChronoUnit.HOURS))));
+        given(activationCodeRepository.findByUsernameAndCodeAndExpiresGreaterThan(eq(username), eq(code), any(LocalDateTime.class))).willReturn(Optional.of(new ActivationCode(username, code, LocalDateTime.now().plus(2, ChronoUnit.HOURS))));
         given(accountDetailsRepository.findById(eq(username))).willReturn(Optional.empty());
         assertThrows(ResourceNotFoundException.class, () -> accountOnBoardingService.activate(username, code));
 

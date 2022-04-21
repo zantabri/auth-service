@@ -59,7 +59,7 @@ public class AccountOnBoardingServiceImpl implements AccountOnBoardingService {
     @Override
     public boolean activate(String username, String code) {
 
-        Optional<ActivationCode> activationCode = activationCodeRepository.findByUsernameAndCodeAndExpiresLessThan(username, code, LocalDateTime.now());
+        Optional<ActivationCode> activationCode = activationCodeRepository.findByUsernameAndCodeAndExpiresGreaterThan(username, code, LocalDateTime.now());
 
         if (activationCode.isEmpty()) {
             return false;

@@ -5,6 +5,5 @@ insert into UserRole(id, role) values (1, 'admin'), (2, 'user'), (3, 'super_admi
 
 insert into AccountDetails_UserRole(AccountDetails_username, authorities_id) values ('dman2022', 2);
 
-
---insert insert Organization(DTYPE, organizationId, address, businessName, contactNumber,contactPerson,dateCreated,state,businessType,LicenseExpiryDate,licenseIssueDate ,parent_organization_id)
---values()
+insert into ActivationCode (code, expires , username) values ('235621', CURRENT_TIMESTAMP, 'dman2022'),
+('154745', DATEADD('DAY', 1, CURRENT_TIMESTAMP), 'johnD');

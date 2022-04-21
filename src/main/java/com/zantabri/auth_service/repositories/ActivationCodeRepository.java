@@ -8,6 +8,14 @@ import java.util.Optional;
 
 public interface ActivationCodeRepository extends JpaRepository<ActivationCode, String> {
 
-    Optional<ActivationCode> findByUsernameAndCodeAndExpiresLessThan(String username, String code, LocalDateTime localDateTime);
+    /**
+     * Gets the activation code that matches the criteria
+     * TODO: WE PROBABLY DON'T WANT TO ACCEPT THE DATE BUT USE THE CURRENT DATE BY DEFAULT
+     * @param username
+     * @param code
+     * @param localDateTime
+     * @return
+     */
+    Optional<ActivationCode> findByUsernameAndCodeAndExpiresGreaterThan(String username, String code, LocalDateTime localDateTime);
 
 }

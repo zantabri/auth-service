@@ -55,4 +55,13 @@ public class ActivationCode {
     public void setExpires(@NonNull LocalDateTime expires) {
         this.expires = expires;
     }
+
+    @Override
+    public String toString() {
+        return "ActivationCode{" +
+                "username='" + username + '\'' +
+                ", code='" + code + '\'' +
+                ", expires=" + expires +
+                '}';
+    }
 }
