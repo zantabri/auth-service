@@ -1,47 +1,55 @@
 package com.zantabri.auth_service.model;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.sun.istack.NotNull;
 
 
 import javax.persistence.*;
+import javax.validation.constraints.*;
 import java.util.List;
 
 @Entity
 public class AccountDetails {
 
+    public interface AccountDetailsOnBoardingValidation {}
+    public interface AccountDetailsUpdatingValidation {}
+
     @Id
+    @NotNull(groups = {AccountDetailsOnBoardingValidation.class, AccountDetailsUpdatingValidation.class})
     private String username;
 
-    @NotNull
+    @NotNull(groups = {AccountDetailsOnBoardingValidation.class, AccountDetailsUpdatingValidation.class})
+    @Email
     @Column(unique = true)
     private String email;
 
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
-    @NotNull
-    @Column(name = "password")
+    @NotNull(groups = {AccountDetailsOnBoardingValidation.class})
+    @Column(name = "password", nullable = false)
+    @Size(min = 6)
     private String password;
 
-    @NotNull
+    @NotNull(groups = {AccountDetailsOnBoardingValidation.class, AccountDetailsUpdatingValidation.class})
+    @Pattern(regexp = "\\d{11,}")
     @Column(name = "telephone")
     private String telephone;
 
-    @NotNull
+    @NotNull(groups = {AccountDetailsOnBoardingValidation.class, AccountDetailsUpdatingValidation.class})
+    @NotBlank
     @Column(name = "first_name")
     private String firstName;
 
-    @NotNull
+    @NotNull(groups = {AccountDetailsOnBoardingValidation.class, AccountDetailsUpdatingValidation.class})
+    @NotBlank
     @Column(name = "last_name")
     private String lastName;
 
-    @NotNull
     @Column(name = "activated")
     private boolean activated;
 
     @OneToMany(cascade = CascadeType.PERSIST, fetch = FetchType.EAGER)
     private List<UserRole> authorities;
 
-    @NotNull
+    @NotNull(groups = {AccountDetailsOnBoardingValidation.class, AccountDetailsUpdatingValidation.class})
     @Column(name = "organization_id", nullable = false)
     private long organizationId;
 
@@ -118,5 +126,18 @@ public class AccountDetails {
 
     public void setOrganizationId(long organization) {
         this.organizationId = organization;
+    }
+
+    @Override
+    public String toString() {
+        return "AccountDetails{" +
+                "username='" + username + '\'' +
+                ", email='" + email + '\'' +
+                ", telephone='" + telephone + '\'' +
+                ", firstName='" + firstName + '\'' +
+                ", lastName='" + lastName + '\'' +
+                ", activated=" + activated +
+                ", organizationId=" + organizationId +
+                '}';
     }
 }

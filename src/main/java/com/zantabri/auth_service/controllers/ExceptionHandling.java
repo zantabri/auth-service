@@ -2,6 +2,8 @@ package com.zantabri.auth_service.controllers;
 
 import com.zantabri.auth_service.errors.JsonError;
 import com.zantabri.auth_service.errors.ResourceNotFoundException;
+import com.zantabri.auth_service.errors.ResourcePayloadValidationException;
+import com.zantabri.auth_service.errors.ResourceValidationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
@@ -29,10 +31,25 @@ public class ExceptionHandling {
         return toJsonError(exception);
     }
 
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    @ExceptionHandler(ResourcePayloadValidationException.class)
+    @ResponseBody
+    public JsonError handleResourcePayloadValidationException(ResourcePayloadValidationException exception) {
+        return toJsonError(exception);
+    }
+
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     @ExceptionHandler(value = RuntimeException.class)
     @ResponseBody
     public JsonError handleSystemError(RuntimeException exception) {
+        return toJsonError(exception);
+    }
+
+
+    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+    @ExceptionHandler(value = ResourceValidationException.class)
+    @ResponseBody
+    public JsonError handleResourceViolationException(ResourceValidationException exception) {
         return toJsonError(exception);
     }
 

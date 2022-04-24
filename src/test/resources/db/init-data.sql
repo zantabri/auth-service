@@ -1,5 +1,5 @@
 insert into AccountDetails(username, email, activated, first_name , last_name, password , telephone, organization_id)
-values ('dman2022', 'dman2022@outlook.com', true, 'dapo', 'main', 'pass', '080654543432', 1);
+values ('dman2022', 'dman2022@outlook.com', true, 'dapo', 'main', 'password111111', '080654543432', 1);
 
 insert into UserRole(id, role) values (1, 'admin'), (2, 'user'), (3, 'super_admin');
 

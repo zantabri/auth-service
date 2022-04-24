@@ -1,5 +1,7 @@
 package com.zantabri.auth_service.services;
 
+import com.zantabri.auth_service.errors.ResourcePayloadValidationException;
+import com.zantabri.auth_service.errors.ResourceValidationException;
 import com.zantabri.auth_service.repositories.AccountDetailsRepository;
 import com.zantabri.auth_service.errors.OldPasswordVerificationFailedException;
 import com.zantabri.auth_service.errors.ResourceNotFoundException;
@@ -15,7 +17,10 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.validation.ConstraintViolation;
+import javax.validation.Validator;
 import java.util.Optional;
+import java.util.Set;
 
 @Transactional
 @Service
@@ -23,12 +28,14 @@ public class AccountDetailsServiceImpl implements AccountDetailsService {
 
     private final AccountDetailsRepository accountDetailsRepository;
     private final PasswordEncoder passwordEncoder;
+    private final Validator validator;
 
 
     @Autowired
-    public AccountDetailsServiceImpl(AccountDetailsRepository accountDetailsRepository, PasswordEncoder passwordEncoder) {
+    public AccountDetailsServiceImpl(AccountDetailsRepository accountDetailsRepository, PasswordEncoder passwordEncoder, Validator validator) {
         this.accountDetailsRepository = accountDetailsRepository;
         this.passwordEncoder = passwordEncoder;
+        this.validator = validator;
     }
 
     @Override
@@ -46,11 +53,24 @@ public class AccountDetailsServiceImpl implements AccountDetailsService {
 
     @Override
     public AccountDetails createAccount(AccountDetails accountDetails) {
+
+        Set<ConstraintViolation<AccountDetails>> constraintViolationSet = validator.validate(accountDetails);
+        if(!constraintViolationSet.isEmpty()) {
+            throw new ResourceValidationException(constraintViolationSet.toString());
+        }
+
         return accountDetailsRepository.save(accountDetails);
+
     }
 
     @Override
     public AccountDetails updateAccount(String username, AccountDetails accountDetails) {
+
+        Set<ConstraintViolation<AccountDetails>> constraintViolationSet = validator.validate(accountDetails);
+
+        if(!constraintViolationSet.isEmpty()) {
+            throw new ResourceValidationException(constraintViolationSet.toString());
+        }
 
         Optional<AccountDetails> optionalAccountDetails = accountDetailsRepository.findById(username);
 

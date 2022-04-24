@@ -5,6 +5,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 import com.zantabri.auth_service.errors.OldPasswordVerificationFailedException;
 import com.zantabri.auth_service.errors.ResourceNotFoundException;
+import com.zantabri.auth_service.errors.ResourceValidationException;
 import com.zantabri.auth_service.model.AccountDetails;
 
 import com.zantabri.auth_service.model.UserRole;
@@ -13,6 +14,7 @@ import org.junit.jupiter.api.Test;
 import com.zantabri.auth_service.repositories.AccountDetailsRepository;
 import org.junit.jupiter.api.extension.ExtendWith;
 
+import org.mockito.internal.verification.NoInteractions;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.data.domain.Pageable;
@@ -20,13 +22,16 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
+import org.springframework.validation.beanvalidation.LocalValidatorFactoryBean;
+
+import javax.validation.ConstraintViolation;
 
 import java.util.List;
 import java.util.Optional;
 
 
 @ExtendWith(SpringExtension.class)
-@ContextConfiguration(classes = {AccountDetailsServiceImpl.class, AccountDetailsRepository.class, PasswordEncoder.class})
+@ContextConfiguration(classes = {AccountDetailsServiceImpl.class, AccountDetailsRepository.class, PasswordEncoder.class, LocalValidatorFactoryBean.class})
 public class AccountDetailsServiceTest {
 
     @Autowired
@@ -113,8 +118,23 @@ public class AccountDetailsServiceTest {
 
     @Test
     public void testCreateAccountWithMissingParameters() {
-        //TODO implement validation logic
-        fail("not yet implemented");
+
+        ConstraintViolation violation = mock(ConstraintViolation.class);
+
+        AccountDetails details = accountDetails(
+                null,
+                "John",
+                null,
+                List.of(new UserRole(1,"Admin")),
+                "john@email.com",
+                true,
+                "08064932359",
+                1);
+
+        assertThrows(ResourceValidationException.class, () -> accountDetailsService.createAccount(details));
+        verify(accountDetailsRepository, new NoInteractions()).save(details);
+
+
     }
 
     @Test
@@ -133,7 +153,7 @@ public class AccountDetailsServiceTest {
 
 
         AccountDetails accountDetailsModification = accountDetails(
-                null,
+                username,
                 "John",
                 "doe",
                 List.of(new UserRole(1,"USER")),
@@ -144,10 +164,41 @@ public class AccountDetailsServiceTest {
 
 
         given(accountDetailsRepository.findById(eq(username))).willReturn(Optional.of(currentAccountDetails));
-
         accountDetailsService.updateAccount(username, accountDetailsModification);
         assertEquals(username, accountDetailsModification.getUsername());
         verify(accountDetailsRepository).save(accountDetailsModification);
+
+    }
+
+    @Test
+    public void testUpdateAccountWithInvalidField() {
+
+        String username = "johnD";
+        AccountDetails currentAccountDetails = accountDetails(
+                username,
+                "John",
+                "doe",
+                List.of(new UserRole(1,"ADMIN")),
+                "john@email.com",
+                true,
+                "08064932359",
+                1);
+
+
+        AccountDetails accountDetailsModification = accountDetails(
+                username,
+                "John",
+                "doe",
+                List.of(new UserRole(1,"USER")),
+                "jaeger",
+                true,
+                "08064932359",
+                1);
+
+        given(accountDetailsRepository.findById(eq(username))).willReturn(Optional.of(currentAccountDetails));
+
+        assertThrows(ResourceValidationException.class, () -> accountDetailsService.updateAccount(username, accountDetailsModification));
+        verify(accountDetailsRepository, new NoInteractions()).save(accountDetailsModification);
 
     }
 
@@ -156,7 +207,7 @@ public class AccountDetailsServiceTest {
 
         String username = "johnD";
         AccountDetails accountDetailsModification = accountDetails(
-                null,
+                username,
                 "John",
                 "doe",
                 List.of(new UserRole(1,"USER")),
@@ -167,6 +218,7 @@ public class AccountDetailsServiceTest {
 
         given(accountDetailsRepository.findById(eq(username))).willReturn(Optional.empty());
         assertThrows(ResourceNotFoundException.class, () -> accountDetailsService.updateAccount(username, accountDetailsModification));
+
 
     }
 
@@ -208,15 +260,6 @@ public class AccountDetailsServiceTest {
         String username = "johnD";
         String oldPassword = "oldpassword";
         String newPassword = "newpassword";
-        AccountDetails accountDetails = accountDetails(
-                username,
-                "John",
-                "doe",
-                List.of(new UserRole(1,"ADMIN")),
-                "john@email.com",
-                true,
-                "08064932359",
-                1);
 
         given(accountDetailsRepository.findById(eq(username))).willReturn(Optional.empty());
         assertThrows(UsernameNotFoundException.class, () -> accountDetailsService.changePassword(username, oldPassword, newPassword));

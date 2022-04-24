@@ -1,5 +1,6 @@
 package com.zantabri.auth_service.controllers;
 
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.BDDMockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
@@ -69,12 +70,18 @@ public class AccountDetailsControllersTest {
     }
 
     @Test
+    public void check() {
+        assertNotNull(accountDetailsService);
+    }
+
+    @Test
     public void testGetAccountByUsername() throws Exception {
 
         AccountDetails accountDetails = AccountDetailsBuilder.from( "johnD",
                 "John",
                 "doe",
                 List.of(new UserRole(1,"ADMIN")),
+                null,
                 "john@email.com",
                 true,
                 "08055932559",
@@ -86,6 +93,7 @@ public class AccountDetailsControllersTest {
                 .andExpect(status().isOk()).andDo(result1 -> {
                     logger.info("result is {}",result1.getResponse().getContentAsString());
                 })
+                .andExpect(jsonPath("$.password").doesNotExist())
                 .andExpect(jsonPath("$.username").value("johnD"));
 
     }
@@ -102,10 +110,11 @@ public class AccountDetailsControllersTest {
     @Test
     public void testUpdateAccount() throws Exception {
 
-        AccountDetails update = AccountDetailsBuilder.from( null,
+        AccountDetails update = AccountDetailsBuilder.from( "johnD",
                 "John",
                 "doe",
                 List.of(new UserRole(1,"ADMIN")),
+                null,
                 "johnD@email.com",
                 true,
                 "08055932559",
@@ -123,10 +132,11 @@ public class AccountDetailsControllersTest {
     @Test
     public void testUpdateAccountWhenAccountDoesntExist() throws Exception {
 
-        AccountDetails update = AccountDetailsBuilder.from( null,
+        AccountDetails update = AccountDetailsBuilder.from( "johnD2",
                 "John",
                 "doe",
                 List.of(new UserRole(1,"ADMIN")),
+                null,
                 "johnD@email.com",
                 true,
                 "08055932559",
@@ -139,12 +149,32 @@ public class AccountDetailsControllersTest {
     }
 
     @Test
+    public void testUpdateAccountWithMissingField() throws Exception {
+        AccountDetails update = AccountDetailsBuilder.from( null,
+                "John",
+                null,
+                List.of(new UserRole(1,"ADMIN")),
+                null,
+                "johnD@email.com",
+                true,
+                "08055932559",
+                1);
+
+        String sUpdate = mapper.writeValueAsString(update);
+        when(accountDetailsService.updateAccount(eq(username), any(AccountDetails.class))).thenThrow(new ResourceNotFoundException(1, AccountDetails.class));
+        mockMvc.perform(put("/accounts/".concat(username)).header("Authorization",jwt).contentType(MediaType.APPLICATION_JSON).content(sUpdate))
+                .andDo(result -> logger.info("response is {}", result.getResponse().getContentAsString()))
+                .andExpect(status().is4xxClientError());
+    }
+
+    @Test
     public void testGetAccountsDetailsListPage() throws Exception {
 
         AccountDetails account1 = AccountDetailsBuilder.from( "johnD",
                 "John",
                 "doe",
                 List.of(new UserRole(1,"ADMIN")),
+                null,
                 "johnD@email.com",
                 true,
                 "08055932559",
@@ -154,6 +184,7 @@ public class AccountDetailsControllersTest {
                 "Jane",
                 "doe",
                 List.of(new UserRole(1,"USER")),
+                null,
                 "janeD@email.com",
                 true,
                 "08064932360",

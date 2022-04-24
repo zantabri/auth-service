@@ -1,5 +1,7 @@
 package com.zantabri.auth_service.services;
 
+import com.zantabri.auth_service.errors.ResourceValidationException;
+import com.zantabri.auth_service.model.validators.ActivationCodeValidator;
 import com.zantabri.auth_service.repositories.AccountDetailsRepository;
 import com.zantabri.auth_service.repositories.ActivationCodeRepository;
 import com.zantabri.auth_service.errors.ResourceNotFoundException;
@@ -10,11 +12,14 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.validation.ConstraintViolation;
+import javax.validation.Validator;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.Optional;
+import java.util.Set;
 
 @Service
 @Transactional
@@ -30,12 +35,14 @@ public class AccountOnBoardingServiceImpl implements AccountOnBoardingService {
     private final AccountDetailsRepository accountDetailsRepository;
     private final ActivationCodeRepository activationCodeRepository;
     private final NotificationService notificationService;
+    private final Validator validator;
 
     @Autowired
-    public AccountOnBoardingServiceImpl(AccountDetailsRepository accountDetailsRepository, ActivationCodeRepository activationCodeRepository, NotificationService notificationService) {
+    public AccountOnBoardingServiceImpl(AccountDetailsRepository accountDetailsRepository, ActivationCodeRepository activationCodeRepository, NotificationService notificationService, Validator validator) {
         this.accountDetailsRepository = accountDetailsRepository;
         this.activationCodeRepository = activationCodeRepository;
         this.notificationService = notificationService;
+        this.validator = validator;
     }
 
     @Override
@@ -43,9 +50,13 @@ public class AccountOnBoardingServiceImpl implements AccountOnBoardingService {
 
         AccountDetails accountDetails1 =  accountDetailsRepository.save(accountDetails);
         accountDetails.setActivated(false);
-
         //generate code
         String code = generateCode();
+        Set<ConstraintViolation<AccountDetails>> violations = validator.validate(accountDetails);
+
+        if (!violations.isEmpty()) {
+            throw new ResourceValidationException(violations.toString());
+        }
 
         String content = generateActivationEmailContent(accountDetails.getUsername(), code);
         notificationService.sendNotification(accountDetails.getEmail(), "Activation Link", content);

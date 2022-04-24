@@ -47,12 +47,18 @@ public class AccountOnBoardingControllerTest {
     ObjectMapper mapper;
 
     @Test
+    public void check() {
+        assertNotNull(accountDetailsService);
+    }
+
+    @Test
     public void testRegister() throws Exception {
 
         AccountDetails accountDetails = AccountDetailsBuilder.from( "johnD",
                 "John",
                 "doe",
                 List.of(new UserRole(1,"ADMIN")),
+                "password",
                 "john@email.com",
                 false,
                 "08055932559",

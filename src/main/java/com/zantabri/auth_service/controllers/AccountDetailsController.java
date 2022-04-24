@@ -1,11 +1,14 @@
 package com.zantabri.auth_service.controllers;
 
+import com.zantabri.auth_service.errors.ResourcePayloadValidationException;
 import com.zantabri.auth_service.model.AccountDetails;
 import com.zantabri.auth_service.services.AccountDetailsService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.validation.BindingResult;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -26,7 +29,11 @@ public class AccountDetailsController {
     }
 
     @PutMapping(value = "/{username}", consumes = MediaType.APPLICATION_JSON_VALUE)
-    public void updateAccount(@PathVariable String username, @RequestBody AccountDetails accountDetails) {
+    public void updateAccount(@PathVariable String username, @Validated(AccountDetails.AccountDetailsUpdatingValidation.class) @RequestBody AccountDetails accountDetails, BindingResult result) {
+        if (result.hasErrors()) {
+            System.out.println(result.getAllErrors());
+            throw new ResourcePayloadValidationException(accountDetails, result.getAllErrors().toString());
+        }
         accountDetailsService.updateAccount(username, accountDetails);
     }
 

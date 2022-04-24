@@ -1,5 +1,6 @@
 package com.zantabri.auth_service.model;
 
+
 import org.springframework.lang.NonNull;
 
 import javax.persistence.Column;
