@@ -6,6 +6,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.zantabri.auth_service.AccountDetailsBuilder;
 import com.zantabri.auth_service.model.AccountDetails;
@@ -14,6 +15,7 @@ import com.zantabri.auth_service.repositories.AccountDetailsRepository;
 import com.zantabri.auth_service.services.AccountDetailsService;
 import com.zantabri.auth_service.services.AccountOnBoardingService;
 import org.junit.jupiter.api.Test;
+import org.mockito.internal.verification.NoInteractions;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -54,6 +56,16 @@ public class AccountOnBoardingControllerTest {
     @Test
     public void testRegister() throws Exception {
 
+        var payload = "{\"username\":\"johnD\",\"email\":\"john@email.com\",\"password\":\"password\",\"telephone\":\"08055932559\",\"firstName\":\"John\",\"lastName\":\"doe\",\"activated\":false,\"authorities\":[{\"id\":1,\"role\":\"ADMIN\",\"authority\":\"ADMIN\"}],\"organizationId\":1}";
+        mockMvc.perform(post("/register").contentType(MediaType.APPLICATION_JSON).content(payload))
+                .andExpect(status().isOk()).andDo(result -> logger.info("message {}", result.getResponse().getContentAsString()));
+
+        verify(accountOnBoardingService).register(any(AccountDetails.class));
+
+    }
+
+    @Test
+    public void testRegisterWithInvalidAccountDetails() throws Exception {
         AccountDetails accountDetails = AccountDetailsBuilder.from( "johnD",
                 "John",
                 "doe",
@@ -64,17 +76,13 @@ public class AccountOnBoardingControllerTest {
                 "08055932559",
                 1);
 
+        var payload = mapper.writeValueAsString(accountDetails);
 
-        mockMvc.perform(post("/register").contentType(MediaType.APPLICATION_JSON).content(mapper.writeValueAsString(accountDetails)))
-                .andExpect(status().isOk()).andDo(result -> logger.info("message {}", result.getResponse().getContentAsString()));
+        mockMvc.perform(post("/register").contentType(MediaType.APPLICATION_JSON).content(payload))
+                .andExpect(status().is4xxClientError())
+                .andDo(result -> logger.info("message {}", result.getResponse().getContentAsString()));
 
-        verify(accountOnBoardingService).register(any(AccountDetails.class));
-
-    }
-
-    @Test
-    public void testRegisterWithInvalidAccountDetails() {
-        fail("validation and binding not yet implemented");
+        verify(accountOnBoardingService, new NoInteractions()).register(any(AccountDetails.class));
     }
 
     @Test
