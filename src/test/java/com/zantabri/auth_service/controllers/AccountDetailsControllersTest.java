@@ -63,7 +63,16 @@ public class AccountDetailsControllersTest {
     @BeforeEach
     private void initJws() {
         SecretKey key = Keys.hmacShaKeyFor(signingKey.getBytes(StandardCharsets.UTF_8));
-        jwt = Jwts.builder().setClaims(Map.of("username", username,"roles", "ROLE_ADMIN"))
+        jwt = Jwts.builder().setClaims(
+                Map.of(
+                        "username", username,
+                        "roles", "ROLE_ADMIN",
+                        "organizationId", Long.valueOf(200L),
+                        "accountNonExpired", true,
+                        "accountNonLocked", true,
+                        "enabled", true
+                )
+                )
                 .signWith(key)
                 .setExpiration(Date.from(LocalDateTime.now().plus(1, ChronoUnit.HOURS).atZone(ZoneId.systemDefault()).toInstant()))
                 .compact();
@@ -150,6 +159,7 @@ public class AccountDetailsControllersTest {
 
     @Test
     public void testUpdateAccountWithMissingField() throws Exception {
+
         AccountDetails update = AccountDetailsBuilder.from( null,
                 "John",
                 null,
@@ -191,7 +201,7 @@ public class AccountDetailsControllersTest {
                 1);
 
 
-        given(accountDetailsService.getAccountDetailsListPage(anyInt(), anyInt(), anyString(), anyString())).willReturn(new PageImpl<>(List.of(account1, account2)));
+        given(accountDetailsService.getAccountDetailsListPage(anyInt(), anyInt(), anyString(), anyString())).willReturn(List.of(account1, account2));
         mockMvc.perform(get("/accounts").header("Authorization",jwt).accept(MediaType.APPLICATION_JSON)).andExpect(status().isOk()).andDo(result1 -> logger.info("result is {}",result1.getResponse().getContentAsString()))
                 .andExpect(jsonPath("$.content[0].username").value("johnD"))
                 .andExpect(jsonPath("$.content[1].username").value("janeD"));

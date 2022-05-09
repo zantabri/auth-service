@@ -4,12 +4,14 @@ import com.zantabri.auth_service.errors.ResourcePayloadValidationException;
 import com.zantabri.auth_service.model.AccountDetails;
 import com.zantabri.auth_service.services.AccountDetailsService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
+import org.springframework.data.domain.*;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/accounts")
@@ -40,7 +42,10 @@ public class AccountDetailsController {
     @GetMapping
     public Page<AccountDetails> getAccountDetailsListPage(@RequestParam(defaultValue = "1", required = false) int page, @RequestParam(defaultValue = "10", required = false) int count, @RequestParam(defaultValue = "asc", required = false) String sortDir, @RequestParam(defaultValue = "username", required = false) String sortBy) {
 
-        return accountDetailsService.getAccountDetailsListPage(page, count, sortDir, sortBy);
+
+        List<AccountDetails> accountDetails = accountDetailsService.getAccountDetailsListPage(page, count, sortDir, sortBy);
+        Pageable pageable = PageRequest.of(page, count, Sort.by(Sort.Direction.fromString(sortDir), sortBy));
+        return new PageImpl<>(accountDetails, pageable, null == accountDetails ? 0L : (long)accountDetails.size());
 
     }
 

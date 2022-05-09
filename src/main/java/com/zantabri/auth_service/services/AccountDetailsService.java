@@ -2,7 +2,11 @@ package com.zantabri.auth_service.services;
 
 import com.zantabri.auth_service.model.AccountDetails;
 import org.springframework.data.domain.Page;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.userdetails.UserDetailsService;
+
+import java.util.List;
 
 public interface AccountDetailsService extends UserDetailsService {
 
@@ -18,5 +22,7 @@ public interface AccountDetailsService extends UserDetailsService {
 
     boolean accountExists(String username);
 
-    Page<AccountDetails> getAccountDetailsListPage(int page, int count, String sortDir, String sortBy);
+    List<AccountDetails> getAccountDetailsListPage(int page, int count, String sortDir, String sortBy);
+
+
 }

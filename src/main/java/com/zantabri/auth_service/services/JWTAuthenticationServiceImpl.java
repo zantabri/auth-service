@@ -52,7 +52,7 @@ public class JWTAuthenticationServiceImpl implements AuthenticationService {
             throw new BadCredentialsException("username not found");
         }
 
-        if(!passwordEncoder.matches(credentials.getPassword(), opt.get().getPassword())) {
+        if (!passwordEncoder.matches(credentials.getPassword(), opt.get().getPassword())) {
             throw new BadCredentialsException("credentials failed");
         }
 
@@ -60,9 +60,18 @@ public class JWTAuthenticationServiceImpl implements AuthenticationService {
         List<UserRole> userRoles = opt.get().getAuthorities();
         String userRolesString = commaSeparatedListOfRoles(userRoles);
 
-        String jwt = Jwts.builder().setClaims(Map.of("username", credentials.getUsername(),"roles", userRolesString))
-                .signWith(key)
+        String jwt = Jwts.builder()
+                .setClaims(
+                        Map.of("username", credentials.getUsername(),
+                                "roles", userRolesString,
+                                "organizationId", opt.get().getOrganizationId(),
+                                "accountNonExpired", true,
+                                "accountNonLocked", true,
+                                "enabled", opt.get().isActivated()
+                        )
+                )
                 .setExpiration(Date.from(LocalDateTime.now().plus(tokenDurationInHours, ChronoUnit.HOURS).atZone(ZoneId.systemDefault()).toInstant()))
+                .signWith(key)
                 .compact();
 
         return new JWTAuthenticationResultDTO(credentials.getUsername(), jwt);

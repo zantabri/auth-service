@@ -10,6 +10,7 @@ import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.authentication.CredentialsExpiredException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -24,8 +25,14 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.time.Instant;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.chrono.ChronoZonedDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -34,6 +41,9 @@ public class JWTAuthenticationFilter extends OncePerRequestFilter {
 
     @Value("${jwt.signing.key}")
     private String signingKey;
+
+    @Value("${jwt.expiration.zoneid}")
+    private String zoneId;
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
@@ -53,11 +63,24 @@ public class JWTAuthenticationFilter extends OncePerRequestFilter {
                 .parseClaimsJws(jwt)
                 .getBody();
 
+        LocalDateTime expirationDateTime = LocalDateTime.ofInstant(Instant.ofEpochMilli(claims.getExpiration().getTime()), ZoneId.of(zoneId));
+        boolean credentialsNonExpired = LocalDateTime.now().atZone(ZoneId.of(zoneId)).isBefore(expirationDateTime.atZone(ZoneId.of(zoneId)));
+
+        if (credentialsNonExpired == false) {
+            throw new CredentialsExpiredException("Expired Credentials");
+        }
+
         String username = String.valueOf(claims.get("username"));
+        long organizationId = Long.valueOf(String.valueOf(claims.get("organizationId")));
+        boolean accountNonExpired = Boolean.valueOf((Boolean)claims.get("accountNonExpired"));
+        boolean accountNonLocked = Boolean.valueOf((Boolean)claims.get("accountNonLocked"));
+        boolean enabled = Boolean.valueOf((Boolean) claims.get("enabled"));
+
         String roles = String.valueOf(claims.get("roles"));
         String[] arr = roles.split(",");
-        List<SimpleGrantedAuthority> authorities = Arrays.stream(arr).map(s -> new SimpleGrantedAuthority(s)).collect(Collectors.toList());
-        var auth = new UsernamePasswordAuthenticationToken(username, null, authorities);
+        List<UserRole> userRoles = Arrays.stream(arr).map(s -> new UserRole(s)).collect(Collectors.toList());
+
+        var auth = new UsernamePasswordAuthenticationToken(new JWTUserDetails(username, organizationId, accountNonExpired, accountNonLocked, credentialsNonExpired, enabled, userRoles) , null, userRoles);
         SecurityContextHolder.getContext().setAuthentication(auth);
 
         filterChain.doFilter(request, response);

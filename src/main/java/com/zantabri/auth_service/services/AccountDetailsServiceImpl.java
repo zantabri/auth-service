@@ -1,16 +1,14 @@
 package com.zantabri.auth_service.services;
 
-import com.zantabri.auth_service.errors.ResourcePayloadValidationException;
 import com.zantabri.auth_service.errors.ResourceValidationException;
 import com.zantabri.auth_service.repositories.AccountDetailsRepository;
 import com.zantabri.auth_service.errors.OldPasswordVerificationFailedException;
 import com.zantabri.auth_service.errors.ResourceNotFoundException;
 import com.zantabri.auth_service.model.AccountDetails;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
+
+import org.springframework.security.access.prepost.PostFilter;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -19,6 +17,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import javax.validation.ConstraintViolation;
 import javax.validation.Validator;
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
@@ -30,7 +29,6 @@ public class AccountDetailsServiceImpl implements AccountDetailsService {
     private final PasswordEncoder passwordEncoder;
     private final Validator validator;
 
-
     @Autowired
     public AccountDetailsServiceImpl(AccountDetailsRepository accountDetailsRepository, PasswordEncoder passwordEncoder, Validator validator) {
         this.accountDetailsRepository = accountDetailsRepository;
@@ -38,6 +36,7 @@ public class AccountDetailsServiceImpl implements AccountDetailsService {
         this.validator = validator;
     }
 
+    @PreAuthorize("#username == authentication.principal.username || hasRole('SUPER_ADMIN') || hasRole('ADMIN')")
     @Override
     public AccountDetails getAccountByUsername(String username) {
 
@@ -63,6 +62,7 @@ public class AccountDetailsServiceImpl implements AccountDetailsService {
 
     }
 
+    @PreAuthorize("#username == authentication.principal.username || (hasRole('ADMIN') && (#accountDetails.organizationId == authentication.principal.organizationId)) || hasRole('SUPER_ADMIN')")
     @Override
     public AccountDetails updateAccount(String username, AccountDetails accountDetails) {
 
@@ -84,11 +84,13 @@ public class AccountDetailsServiceImpl implements AccountDetailsService {
 
     }
 
+    @PreAuthorize("#username == authentication.principal.username")
     @Override
     public void deleteAccount(String username) {
         accountDetailsRepository.deleteById(username);
     }
 
+    @PreAuthorize("#username == authentication.principal.username")
     @Override
     public void changePassword(String username, String oldPassword, String newPassword) {
 
@@ -108,16 +110,20 @@ public class AccountDetailsServiceImpl implements AccountDetailsService {
 
     }
 
+    @PreAuthorize("hasRole('SUPER_ADMIN')")
     @Override
     public boolean accountExists(String username) {
         return accountDetailsRepository.existsById(username);
     }
 
+    @PreAuthorize("hasRole('SUPER_ADMIN') || hasRole('ADMIN')")
+    @PostFilter("(hasRole('ADMIN') && filterObject.organizationId == authentication.principal.organizationId) || hasRole('SUPER_ADMIN')")
     @Override
-    public Page<AccountDetails> getAccountDetailsListPage( int page,int count, String sortDir, String sortBy) {
+    public List<AccountDetails> getAccountDetailsListPage(int page, int count, String sortDir, String sortBy) {
 
-        Pageable pageable = PageRequest.of(page, count, Sort.by(Sort.Direction.fromString(sortDir), sortBy));
-        return accountDetailsRepository.findAll(pageable);
+        int offset = page <= 1 ? 1 : page * count;
+
+        return accountDetailsRepository.secureFindAll(offset, count, sortDir, sortBy);
 
     }
 

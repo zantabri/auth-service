@@ -1,13 +1,11 @@
 package com.zantabri.auth_service.controllers;
 
-import com.zantabri.auth_service.errors.JsonError;
-import com.zantabri.auth_service.errors.ResourceNotFoundException;
-import com.zantabri.auth_service.errors.ResourcePayloadValidationException;
-import com.zantabri.auth_service.errors.ResourceValidationException;
+import com.zantabri.auth_service.errors.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.authentication.CredentialsExpiredException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseBody;
@@ -50,6 +48,13 @@ public class ExceptionHandling {
     @ExceptionHandler(value = ResourceValidationException.class)
     @ResponseBody
     public JsonError handleResourceViolationException(ResourceValidationException exception) {
+        return toJsonError(exception);
+    }
+
+    @ResponseStatus(HttpStatus.UNAUTHORIZED)
+    @ExceptionHandler(CredentialsExpiredException.class)
+    @ResponseBody
+    public JsonError handleCredentialsExpiredException(CredentialsExpiredException exception) {
         return toJsonError(exception);
     }
 

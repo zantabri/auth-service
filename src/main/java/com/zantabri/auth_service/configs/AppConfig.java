@@ -1,14 +1,10 @@
 package com.zantabri.auth_service.configs;
 
-import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Profile;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 
-//@Profile({"prod","dev"})
-//@Configuration
+@Configuration
+@EnableMethodSecurity(prePostEnabled = true)
 public class AppConfig {
-
 
 }

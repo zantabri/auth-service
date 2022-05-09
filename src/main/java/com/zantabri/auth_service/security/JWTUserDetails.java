@@ -1,6 +1,5 @@
 package com.zantabri.auth_service.security;
 
-import com.zantabri.auth_service.model.AccountDetails;
 import com.zantabri.auth_service.model.UserRole;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -8,10 +7,9 @@ import org.springframework.security.core.userdetails.UserDetails;
 import java.util.Collection;
 import java.util.List;
 
-public class UserDetailsImpl implements UserDetails {
+public class JWTUserDetails implements UserDetails {
 
     private String userName;
-    private String password;
     private long organizationId;
     private boolean accountNonExpired = true;
     private boolean accountNonLocked = true;
@@ -19,18 +17,14 @@ public class UserDetailsImpl implements UserDetails {
     private boolean enabled;
     private List<UserRole> authorities;
 
-    private UserDetailsImpl() {}
-
-    public static UserDetailsImpl empty() {
-        return new UserDetailsImpl();
-    }
-
-    public UserDetailsImpl(AccountDetails accountDetails) {
-        this.password = accountDetails.getPassword();
-        this.userName = accountDetails.getUsername();
-        this.enabled = accountDetails.isActivated();
-        this.authorities = accountDetails.getAuthorities();
-        this.organizationId = accountDetails.getOrganizationId();
+    public JWTUserDetails(String userName, long organizationId, boolean accountNonExpired, boolean accountNonLocked, boolean credentialsNonExpired, boolean enabled, List<UserRole> authorities) {
+        this.userName = userName;
+        this.organizationId = organizationId;
+        this.accountNonExpired = accountNonExpired;
+        this.accountNonLocked = accountNonLocked;
+        this.credentialsNonExpired = credentialsNonExpired;
+        this.enabled = enabled;
+        this.authorities = authorities;
     }
 
     @Override
@@ -40,7 +34,7 @@ public class UserDetailsImpl implements UserDetails {
 
     @Override
     public String getPassword() {
-        return password;
+        return null;
     }
 
     @Override
@@ -68,24 +62,8 @@ public class UserDetailsImpl implements UserDetails {
         return enabled;
     }
 
-    public String getUserName() {
-        return userName;
-    }
-
     public long getOrganizationId() {
         return organizationId;
     }
 
-
-    @Override
-    public String toString() {
-        return "AuthenticationDetails{" +
-                "userName='" + userName + '\'' +
-                ", organizationId=" + organizationId +
-                ", accountNonExpired=" + accountNonExpired +
-                ", accountNonLocked=" + accountNonLocked +
-                ", credentialsNonExpired=" + credentialsNonExpired +
-                ", enabled=" + enabled +
-                '}';
-    }
 }
